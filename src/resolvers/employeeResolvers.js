@@ -75,9 +75,8 @@ const employeeResolvers = {
         if (context.req.file) {
           const {buffer, originalname, mimetype} = context.req.file;
           employee_photo = await uploadFile(buffer, originalname, mimetype, 'employee-profile-photos')
-        }else {
-          throw new AppError('Unexpected Error', 500)
         }
+
         const newEmployee = new Employee({...input, employee_photo: employee_photo});
         return await newEmployee.save();
       }catch(e){
@@ -89,8 +88,18 @@ const employeeResolvers = {
       try{
         if(!context.req.user)
           throw new AppError('Forbidden', 403)
-        
-        return await Employee.findByIdAndUpdate(eid, input, { new: true });
+
+        const emp = await Employee.findById(eid);
+        let employee_photo = null;
+        if (context.req.file) {
+          if(emp.employee_photo)
+            await deleteFile(emp.employee_photo)
+
+          const {buffer, originalname, mimetype} = context.req.file;
+          employee_photo = await uploadFile(buffer, originalname, mimetype, 'employee-profile-photos')
+        }
+
+        return await Employee.findByIdAndUpdate(eid, {...input, employee_photo: employee_photo}, { new: true });
       }catch(e){
         throw new AppError(e.message ||'Failed to Update Employee',e.statusCode || 400)
       }
