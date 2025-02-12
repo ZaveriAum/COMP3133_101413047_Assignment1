@@ -1,6 +1,6 @@
 const Employee = require('../models/Employee');
 const AppError = require('../utilities/AppError')
-const {uploadFile, deleteFile} = require('../services/s3Service')
+const {uploadFile, deleteFile, getObjectSignedUrl} = require('../services/s3Service')
 
 const employeeResolvers = {
   getEmployees: async ({}, context) => {
@@ -8,7 +8,14 @@ const employeeResolvers = {
         if(!context.req.user)
           throw new AppError('Forbidden', 403)
         // get all the employees
-        return await Employee.find({});
+        const emps = await Employee.find({});
+        await Promise.all(
+          emps.map(async (emp)=>{
+            if(emp.employee_photo)
+              emp.employee_photo = await getObjectSignedUrl(emp.employee_photo)
+          })
+        );
+        return emps;
       }catch(e){
         throw new AppError(e.message || 'Failed To Fetch Employees', e.statusCode || 500)
       }
@@ -20,7 +27,10 @@ const employeeResolvers = {
           throw new AppError('Forbidden', 403)
 
         // get employee by id
-        return await Employee.findById(eid);
+        const emp = await Employee.findById(eid);
+        if(emp.employee_photo)
+          emp.employee_photo = await getObjectSignedUrl(emp.employee_photo);
+        return emp
       }catch(e){
         throw new AppError(e.message || 'Failed to Find Employee', e.statusCode || 400)
       }
@@ -33,12 +43,21 @@ const employeeResolvers = {
           throw new AppError('Forbidden', 403)
 
         // get employees by designation or department
-        return await Employee.find({
+        const emps = await Employee.find({
             $or: [
                 { designation: { $regex: query, $options: 'i' } },
                 { department: { $regex: query, $options: 'i' } },
             ],
         });
+
+        await Promise.all(
+          emps.map(async (emp)=>{
+            if(emp.employee_photo)
+              emp.employee_photo = await getObjectSignedUrl(emp.employee_photo)
+          })
+        );
+
+        return emps;
       }catch(e){
         throw new AppError(e.message || 'Failed to Find Employees', 400)
       }
@@ -70,6 +89,7 @@ const employeeResolvers = {
       try{
         if(!context.req.user)
           throw new AppError('Forbidden', 403)
+        
         return await Employee.findByIdAndUpdate(eid, input, { new: true });
       }catch(e){
         throw new AppError(e.message ||'Failed to Update Employee',e.statusCode || 400)
