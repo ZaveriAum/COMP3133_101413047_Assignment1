@@ -25,6 +25,7 @@ const employeeSchema = buildSchema(`
     salary: Float!
     date_of_joining: String!
     department: String!
+    employee_photo: String
   }
 
   input UpdateEmployeeInput {

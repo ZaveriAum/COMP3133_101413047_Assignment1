@@ -1,5 +1,6 @@
 const Employee = require('../models/Employee');
 const AppError = require('../utilities/AppError')
+const {uploadFile, deleteFile} = require('../services/s3Service')
 
 const employeeResolvers = {
   getEmployees: async ({}, context) => {
@@ -52,8 +53,13 @@ const employeeResolvers = {
           throw new AppError('Employee with given email already exists', 400);
         
         let employee_photo = null;
-
-        const newEmployee = new Employee(input);
+        if (context.req.file) {
+          const {buffer, originalname, mimetype} = context.req.file;
+          employee_photo = await uploadFile(buffer, originalname, mimetype, 'employee-profile-photos')
+        }else {
+          throw new AppError('Unexpected Error', 500)
+        }
+        const newEmployee = new Employee({...input, employee_photo: employee_photo});
         return await newEmployee.save();
       }catch(e){
         throw new AppError(e.message || 'Failed to Add Employee', e.statusCode || 500)
@@ -74,8 +80,15 @@ const employeeResolvers = {
       try{
         if(!context.req.user)
           throw new AppError('Forbidden', 403)
-        if (! await Employee.findById(eid))
+        
+        const emp = await Employee.findById(eid) 
+        
+        if (!emp)
           throw new AppError('Employee does not exists', 400);
+        
+        if(emp.employee_photo)
+          await deleteFile(emp.employee_photo)
+        
         if (await Employee.findByIdAndDelete(eid))
           return true
         return false

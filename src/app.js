@@ -29,7 +29,7 @@ const upload = multer({ storage: storage });
 
 app.use(
   "/graphql",
-  upload.single('profilePhoto'),
+  upload.single('employee_photo'),
   graphqlHTTP((req, res)=>({
     schema: mergedSchema,
     rootValue: { ... rootResolvers},
