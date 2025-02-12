@@ -9,7 +9,6 @@ const userSchema = buildSchema(`
 
   type AuthPayload {
     accessToken: String!
-    refreshToken: String!
   }
 
   input SignupInput {

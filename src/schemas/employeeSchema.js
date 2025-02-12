@@ -42,7 +42,7 @@ const employeeSchema = buildSchema(`
   type Query {
     getEmployees: [Employee]
     getEmployee(eid: ID!): Employee
-    getEmployeeByDesignationOrDepartment(query: String!): [Employee]
+    getEmployeeDesignationOrDepartment(query: String!): [Employee]
   }
 
   type Mutation {
