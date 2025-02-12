@@ -1,4 +1,5 @@
 const Employee = require('../models/Employee');
+const AppError = require('../utilities/AppError')
 
 const employeeResolvers = {
     getEmployees: async()=>{
@@ -6,7 +7,7 @@ const employeeResolvers = {
         // get all the employees
         return await Employee.find({});
       }catch(e){
-        throw new Error('Failed To Find Employees')
+        throw new AppError('Failed To Find Employees', 400)
       }
     },
 
@@ -15,7 +16,7 @@ const employeeResolvers = {
         // get employee by id
         return await Employee.findById(eid);
       }catch(e){
-        throw new Error('Failed to Find Employee')
+        throw new AppError('Failed to Find Employee', 400)
       }
     },
 
@@ -29,18 +30,18 @@ const employeeResolvers = {
             ],
         });
       }catch(e){
-        throw new Error('No Employees Found')
+        throw new AppError('Failed to Find Employees', 400)
       }
     },
 
     addEmployee: async({input})=>{
       try{
         if (await Employee.findOne({email: input.email}))
-          throw new Error('Employee with given email already exists');
+          throw new AppError('Employee with given email already exists', 400);
         const newEmployee = new Employee(input);
         return await newEmployee.save();
       }catch(e){
-        throw new Error(e.message || 'Failed to Add Employee')
+        throw new AppError(e.message || 'Failed to Add Employee', e.statusCode || 500)
       }
     },
 
@@ -48,19 +49,19 @@ const employeeResolvers = {
       try{
         return await Employee.findByIdAndUpdate(eid, input, { new: true });
       }catch(e){
-        throw new Error('Failed to Update Employee')
+        throw new AppError('Failed to Update Employee', 400)
       }
     },
 
     deleteEmployee: async({eid}) => {
       try{
         if (! await Employee.findById(eid))
-          throw new Error('Employee does not exists');
+          throw new AppError('Employee does not exists', 400);
         if (await Employee.findByIdAndDelete(eid))
           return true
         return false
       }catch(e){
-        throw new Error(e.message || 'Failed to Delete Employee')
+        throw new AppError(e.message || 'Failed to Delete Employee', e.statusCode || 500)
       }
     }
 };

@@ -28,6 +28,12 @@ app.use(
     schema: mergedSchema,
     rootValue: rootResolvers,
     graphiql: true,
+    customFormatErrorFn: (e) => {
+      return {
+        message: e.message || "Internal Server Error",
+        statusCode: e.originalError?.statusCode || 500
+      };
+    }
   })
 );
 
