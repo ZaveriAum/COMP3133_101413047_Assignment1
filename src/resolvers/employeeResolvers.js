@@ -1,6 +1,8 @@
 const Employee = require('../models/Employee');
 const AppError = require('../utilities/AppError')
 const {uploadFile, deleteFile, getObjectSignedUrl} = require('../services/s3Service')
+const employeeValidations = require('../utilities/validations/employeeValidations')
+const validator = require('../middlewares/validator')
 
 const employeeResolvers = {
   getEmployees: async ({}, context) => {
@@ -68,6 +70,8 @@ const employeeResolvers = {
         if(!context.req.user)
           throw new AppError('Forbidden', 403)
 
+        await validator(input, employeeValidations.validateAddEmployee)
+
         if (await Employee.findOne({email: input.email}))
           throw new AppError('Employee with given email already exists', 400);
         
@@ -89,18 +93,21 @@ const employeeResolvers = {
         if(!context.req.user)
           throw new AppError('Forbidden', 403)
 
+        await validator(input, employeeValidations.validateAddEmployee)
+
         const emp = await Employee.findById(eid);
         let employee_photo = null;
         if (context.req.file) {
           if(emp.employee_photo)
             await deleteFile(emp.employee_photo)
-
+          
           const {buffer, originalname, mimetype} = context.req.file;
           employee_photo = await uploadFile(buffer, originalname, mimetype, 'employee-profile-photos')
         }
 
         return await Employee.findByIdAndUpdate(eid, {...input, employee_photo: employee_photo}, { new: true });
       }catch(e){
+        console.log(e)
         throw new AppError(e.message ||'Failed to Update Employee',e.statusCode || 400)
       }
     },

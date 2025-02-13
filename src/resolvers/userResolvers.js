@@ -3,7 +3,9 @@ require('dotenv').config()
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const AppError = require('../utilities/AppError')
+const AppError = require('../utilities/AppError');
+const userValidations = require('../utilities/validations/userValidations');
+const validator = require('../middlewares/validator');
 
 const getTokens = (email) => {
   try{

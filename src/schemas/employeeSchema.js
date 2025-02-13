@@ -18,7 +18,7 @@ const employeeSchema = buildSchema(`
 
   input AddEmployeeInput {
     first_name: String!
-    last_name: String!
+    last_name: String
     email: String!
     gender: String!
     designation: String!
