@@ -107,7 +107,6 @@ const employeeResolvers = {
 
         return await Employee.findByIdAndUpdate(eid, {...input, employee_photo: employee_photo}, { new: true });
       }catch(e){
-        console.log(e)
         throw new AppError(e.message ||'Failed to Update Employee',e.statusCode || 400)
       }
     },

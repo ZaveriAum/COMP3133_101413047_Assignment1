@@ -8,9 +8,16 @@ const userResolvers = require('./resolvers/userResolvers');
 const employeeSchema = require('./schemas/employeeSchema');
 const employeeResolvers = require('./resolvers/employeeResolvers');
 const authenticateToken = require('./middlewares/jwtAuth')
-
+const cors = require('cors')
 const app = express();
+
 app.use(express.json());
+
+app.use(cors({
+  origin: "http://localhost:4200",
+  credentials: true,
+}));
+
 app.use(authenticateToken);
 
 connectDB();

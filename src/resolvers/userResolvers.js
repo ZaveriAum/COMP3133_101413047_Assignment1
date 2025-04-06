@@ -17,7 +17,6 @@ const getTokens = (email) => {
     });
     return {accessToken, refreshToken};
   }catch(e){
-    console.log(e)
     throw new AppError('Internal Server Error', 500);
   }
 }
