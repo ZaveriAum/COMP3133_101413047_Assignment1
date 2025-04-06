@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:4200",
+  origin: "https://101413047-comp3133-assignment2.vercel.app",
   credentials: true,
 }));
 
