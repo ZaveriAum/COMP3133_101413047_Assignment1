@@ -11,7 +11,7 @@ const uploadFile = async (fileBuffer, fileName, mimeType, folder) => {
         const key = `${folder}/${uuidv4()}-${fileName}`
 
         const command = new PutObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
+            Bucket: process.env.COMP3133_AWS_BUCKET_NAME,
             Body: fileBuffer,
             Key: key,
             ContentType: mimeType
@@ -28,7 +28,7 @@ const uploadFile = async (fileBuffer, fileName, mimeType, folder) => {
 const deleteFile = async (filename) => {
 
     const command = new DeleteObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: process.env.COMP3133_AWS_BUCKET_NAME,
         Key: filename,
     })
 
@@ -39,7 +39,7 @@ const deleteFile = async (filename) => {
 const getObjectSignedUrl = async (key)=> {
   
     const command = new GetObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: process.env.COMP3133_AWS_BUCKET_NAME,
         Key: key
       });
     const seconds = 60
